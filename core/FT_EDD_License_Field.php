@@ -3,6 +3,7 @@
 namespace Carbon_Field_FT_EDD_License;
 
 use Carbon_Fields\Field\Field;
+use EDD_SL_Plugin_Updater;
 
 class FT_EDD_License_Field extends Field {
 
@@ -130,6 +131,7 @@ class FT_EDD_License_Field extends Field {
 			$this->store_url,
 			$this->plugin_file,
 			array(
+				'license' => $this->get_value(),
 				'version' => $this->version, // Current version number.
 				'item_id' => $this->item_id, // ID of the product.
 				'author'  => $this->author, // Author of the product.
@@ -146,7 +148,7 @@ class FT_EDD_License_Field extends Field {
 	 * @return this
 	 */
 	public function set_plugin_file( $plugin_file ) {
-		$this->plugin_file = $value;
+		$this->plugin_file = $plugin_file;
 		return $this;
 	}
 
