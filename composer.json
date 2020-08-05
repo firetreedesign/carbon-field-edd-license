@@ -1,0 +1,18 @@
+{
+    "name": "firetreedesign/carbon-field-ft-edd-license",
+    "description": "Carbon Fields extension, that adds a FT EDD License field type.",
+    "keywords": ["wordpress", "carbon-field", "carbon-field-ft-edd-license"],
+    "homepage": "https://firetreedesign.com",
+    "type": "library",
+    "license": "GPL-2.0+",
+    "authors": [],
+    "require": {},
+    "autoload": {
+        "files": [
+            "field.php"
+        ],
+        "psr-4": {
+            "Carbon_Field_FT_EDD_License\\": "core/"
+        }
+    }
+}
