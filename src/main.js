@@ -1,7 +1,8 @@
 /**
  * External dependencies.
  */
-import { Component } from "@wordpress/element";
+import { Component, Fragment } from "@wordpress/element";
+import { __ } from "@wordpress/i18n";
 
 class FTEDDLicenseField extends Component {
 	/**
@@ -24,21 +25,31 @@ class FTEDDLicenseField extends Component {
 		const { id, name, value, field } = this.props;
 
 		return (
-			<div>
+			<Fragment>
 				<input
-					type="text"
-					id={id}
-					name={name}
-					value={value}
-					className="cf-ft_edd_license__input"
-					onChange={this.handleChange}
-					{...field.attributes}
+					type="hidden"
+					name={`${name}_nonce`}
+					value={ft_edd_license.nonce}
 				/>
-				<button
-					type="button"
-					className="dashicons-before dashicons-no-alt"
-				></button>
-			</div>
+				<div className="cf-ft_edd_license__container">
+					<input
+						type="text"
+						id={id}
+						name={name}
+						value={value}
+						className="cf-ft_edd_license__input"
+						onChange={this.handleChange}
+						{...field.attributes}
+					/>
+					<button
+						type="submit"
+						name={`${name}_activate_license`}
+						className="button"
+					>
+						{__("Activate License")}
+					</button>
+				</div>
+			</Fragment>
 		);
 	}
 }

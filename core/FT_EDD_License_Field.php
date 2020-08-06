@@ -57,6 +57,13 @@ class FT_EDD_License_Field extends Field {
 	protected $error_message = '';
 
 	/**
+	 * Field name
+	 *
+	 * @var string
+	 */
+	protected static $field_name;
+
+	/**
 	 * Prepare the field type for use.
 	 * Called once per field type when activated.
 	 *
@@ -89,6 +96,14 @@ class FT_EDD_License_Field extends Field {
 
 		// Enqueue field scripts.
 		wp_enqueue_script( 'carbon-field-ft-edd-license', $root_uri . '/build/bundle.js', array( 'carbon-fields-core' ), '1.0.0', false );
+
+		wp_localize_script(
+			'carbon-field-ft-edd-license',
+			'ft_edd_license',
+			array(
+				'nonce' => wp_create_nonce( self::$field_name . '_nonce' ),
+			)
+		);
 	}
 
 	/**
@@ -119,6 +134,8 @@ class FT_EDD_License_Field extends Field {
 	 * @return void
 	 */
 	public function admin_init() {
+
+		self::$field_name = $this->name;
 
 		$this->activate_license();
 		$this->deactivate_license();
