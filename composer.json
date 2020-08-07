@@ -5,8 +5,6 @@
     "homepage": "https://firetreedesign.com",
     "type": "library",
     "license": "GPL-2.0+",
-    "authors": [],
-    "require": {},
     "autoload": {
         "files": [
             "field.php"

@@ -26,7 +26,7 @@ class FT_EDD_License_Field extends Field {
 	 *
 	 * @var string
 	 */
-	protected $verson = '';
+	protected $version = '';
 
 	/**
 	 * Store URL
@@ -55,13 +55,6 @@ class FT_EDD_License_Field extends Field {
 	 * @var string
 	 */
 	protected $error_message = '';
-
-	/**
-	 * Field name
-	 *
-	 * @var string
-	 */
-	protected static $field_name;
 
 	/**
 	 * Prepare the field type for use.
@@ -96,14 +89,6 @@ class FT_EDD_License_Field extends Field {
 
 		// Enqueue field scripts.
 		wp_enqueue_script( 'carbon-field-ft-edd-license', $root_uri . '/build/bundle.js', array( 'carbon-fields-core' ), '1.0.0', false );
-
-		wp_localize_script(
-			'carbon-field-ft-edd-license',
-			'ft_edd_license',
-			array(
-				'nonce' => wp_create_nonce( self::$field_name . '_nonce' ),
-			)
-		);
 	}
 
 	/**
@@ -123,6 +108,11 @@ class FT_EDD_License_Field extends Field {
 				'plugin_file' => $this->plugin_file,
 				'store_url'   => $this->store_url,
 				'version'     => $this->version,
+				'status'      => get_option( "{$this->name}_status" ),
+				'nonce'       => wp_create_nonce( "{$this->name}_nonce" ),
+				'nonce_name'  => "{$this->name}_nonce",
+				'date_format' => get_option('date_format'),
+				'license'     => $this->get_license_key(),
 			)
 		);
 		return $field_data;
@@ -135,10 +125,11 @@ class FT_EDD_License_Field extends Field {
 	 */
 	public function admin_init() {
 
-		self::$field_name = $this->name;
-
 		$this->activate_license();
 		$this->deactivate_license();
+
+		add_action( "wp_ajax_{$this->name}_activate", array( $this, 'activate_license' ) );
+		add_action( "wp_ajax_{$this->name}_deactivate", array( $this, 'deactivate_license' ) );
 
 		if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 			include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
@@ -148,7 +139,7 @@ class FT_EDD_License_Field extends Field {
 			$this->store_url,
 			$this->plugin_file,
 			array(
-				'license' => $this->get_value(),
+				'license' => $this->get_license_key(),
 				'version' => $this->version, // Current version number.
 				'item_id' => $this->item_id, // ID of the product.
 				'author'  => $this->author, // Author of the product.
@@ -242,7 +233,7 @@ class FT_EDD_License_Field extends Field {
 		}
 
 		// Retrieve the license key.
-		$license_key = trim( $this->get_value() );
+		$license_key = trim( $this->get_license_key() );
 
 		// Data to send in our API request.
 		$api_params = array(
@@ -312,7 +303,7 @@ class FT_EDD_License_Field extends Field {
 			$this->error_message = '';
 		}
 
-		update_option( "{$this->name}_status", $license_data->license );
+		update_option( "{$this->name}_status", $license_data );
 	}
 
 	/**
@@ -333,7 +324,7 @@ class FT_EDD_License_Field extends Field {
 		}
 
 		// Retrieve the license key.
-		$license_key = trim( $this->get_value() );
+		$license_key = trim( $this->get_license_key() );
 
 		// Data to send in our API request.
 		$api_params = array(
@@ -365,9 +356,31 @@ class FT_EDD_License_Field extends Field {
 		// Decode the license data.
 		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
 
+		if ( ! is_object( $license_data ) ) {
+			return;
+		}
+
+		if ( ! isset( $license_data->license ) ) {
+			return;
+		}
+
 		// $license_data->license will be either "deactivated" or "failed".
 		if ( 'deactivated' === $license_data->license ) {
-			delete_option( "{$this->name}_status" );
+			update_option( "{$this->name}_status", $license_data );
+		}
+	}
+
+	/**
+	 * Get the license key
+	 */
+	private function get_license_key() {
+		switch ( $this->context ) {
+			case 'theme_options':
+				return \carbon_get_theme_option( $this->base_name );
+				break;
+			default:
+				return '';
+				break;
 		}
 	}
 }
