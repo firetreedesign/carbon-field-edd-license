@@ -6,6 +6,29 @@ import { __, sprintf } from "@wordpress/i18n";
 import { dateI18n } from "@wordpress/date";
 
 class FTEDDLicenseField extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			status: null,
+			error: null,
+			active: false,
+			loading: false,
+			activateBtn: __("Activate License"),
+			deactivateBtn: __("Deactivate License"),
+		};
+	}
+
+	componentDidMount() {
+		console.log({
+			active: this.licenseActive(),
+			status: this.props.field.license_status,
+		});
+		this.setState({
+			active: this.licenseActive(),
+			status: this.props.field.license_status,
+		});
+	}
+
 	/**
 	 * Handles the change of the input.
 	 *
@@ -18,7 +41,8 @@ class FTEDDLicenseField extends Component {
 		onChange(id, e.target.value);
 	};
 
-	licenseActive = (status) => {
+	licenseActive = () => {
+		const { status } = this.props.field;
 		let active = false;
 		if ("object" === typeof status && undefined !== status.license) {
 			switch (status.license) {
@@ -32,15 +56,86 @@ class FTEDDLicenseField extends Component {
 		return active;
 	};
 
-	handleActivation = (e) => {
+	handleActivation = (e, fieldName) => {
 		e.preventDefault();
-		alert("Activate");
-		console.log(ajaxurl);
+
+		let data = new FormData();
+		data.append("action", fieldName + "_activate");
+		data.append("_wpnonce", ft_edd_license.nonce);
+
+		this.setState({
+			loading: true,
+			activateBtn: __("Activating..."),
+		});
+
+		fetch(ft_edd_license.ajaxurl, {
+			method: "POST",
+			credentials: "same-origin",
+			body: data,
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				if (data.error) {
+					this.setState({
+						status: data.status,
+						error: data.error,
+						active: false,
+						loading: false,
+						activateBtn: __("Activate License"),
+					});
+				} else {
+					this.setState({
+						status: data.status,
+						error: null,
+						active: true,
+						loading: false,
+						activateBtn: __("Activate License"),
+					});
+				}
+			})
+			.catch((error) => {
+				this.setState({
+					error: error,
+					loading: false,
+					activateBtn: __("Activate License"),
+				});
+			});
 	};
 
-	handleDeactivation = (e) => {
+	handleDeactivation = (e, fieldName) => {
 		e.preventDefault();
-		alert("Deactivate");
+
+		let data = new FormData();
+		data.append("action", fieldName + "_deactivate");
+		data.append("_wpnonce", ft_edd_license.nonce);
+
+		this.setState({
+			loading: true,
+			deactivateBtn: __("Deactivating..."),
+		});
+
+		fetch(ajaxurl, {
+			method: "POST",
+			credentials: "same-origin",
+			body: data,
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				this.setState({
+					status: data.status,
+					error: data.error,
+					active: false,
+					loading: false,
+					deactivateBtn: __("Deactivate License"),
+				});
+			})
+			.catch((error) => {
+				this.setState({
+					error: error,
+					loading: false,
+					deactivateBtn: __("Deactivate License"),
+				});
+			});
 	};
 
 	/**
@@ -64,7 +159,7 @@ class FTEDDLicenseField extends Component {
 						id={id}
 						name={name}
 						value={value}
-						readOnly={this.licenseActive(field.status)}
+						readOnly={this.state.active}
 						className="cf-ft_edd_license__input"
 						onChange={this.handleChange}
 						{...field.attributes}
@@ -74,49 +169,43 @@ class FTEDDLicenseField extends Component {
 							{__("Save before activating")}
 						</button>
 					)}
-					{field.license && !this.licenseActive(field.status) && (
+					{field.license && !this.state.active && (
 						<button
 							type="button"
 							name={`${field.name}_activate_license`}
-							className="button"
-							onClick={this.handleActivation}
+							className={`button ${
+								this.state.loading ? "updating-message" : ""
+							}`}
+							disabled={this.state.loading}
+							onClick={(e) =>
+								this.handleActivation(e, field.name)
+							}
 						>
-							{__("Activate License")}
+							{this.state.activateBtn}
 						</button>
 					)}
-					{field.license && this.licenseActive(field.status) && (
+					{field.license && this.state.active && (
 						<button
 							type="button"
 							name={`${field.name}_deactivate_license`}
-							className="button"
-							onClick={this.handleDeactivation}
+							className={`button ${
+								this.state.loading ? "updating-message" : ""
+							}`}
+							disabled={this.state.loading}
+							onClick={(e) =>
+								this.handleDeactivation(e, field.name)
+							}
 						>
-							{__("Deactivate License")}
+							{this.state.deactivateBtn}
 						</button>
 					)}
 				</div>
-				{field.status &&
-					field.status.license &&
-					"valid" === field.status.license &&
-					field.status.expires &&
-					"lifetime" === field.status.expires && (
-						<p>{__("Your license key never expires.")}</p>
-					)}
-				{field.status &&
-					field.status.license &&
-					"valid" === field.status.license &&
-					field.status.expires &&
-					"lifetime" !== field.status.expires && (
-						<p>
-							{sprintf(
-								"Your license key expires on %s.",
-								dateI18n(
-									field.date_format,
-									field.status.expires
-								)
-							)}
-						</p>
-					)}
+				{this.state.status && <p>{this.state.status}</p>}
+				{this.state.error && (
+					<p>
+						{__("Error:")} {this.state.error}
+					</p>
+				)}
 			</Fragment>
 		);
 	}

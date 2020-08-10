@@ -89,6 +89,15 @@ class FT_EDD_License_Field extends Field {
 
 		// Enqueue field scripts.
 		wp_enqueue_script( 'carbon-field-ft-edd-license', $root_uri . '/build/bundle.js', array( 'carbon-fields-core' ), '1.0.0', false );
+
+		wp_localize_script(
+			'carbon-field-ft-edd-license',
+			'ft_edd_license',
+			array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'ft-edd-license' )
+			)
+		);
 	}
 
 	/**
@@ -98,24 +107,31 @@ class FT_EDD_License_Field extends Field {
 	 * @return array
 	 */
 	public function to_json( $load ) {
+		$status = get_option( "{$this->name}_status" );
 		$field_data = parent::to_json( $load );
 		$field_data = array_merge(
 			$field_data,
 			array(
-				'author'      => $this->author,
-				'beta'        => $this->beta,
-				'item_id'     => $this->item_id,
-				'plugin_file' => $this->plugin_file,
-				'store_url'   => $this->store_url,
-				'version'     => $this->version,
-				'status'      => get_option( "{$this->name}_status" ),
-				'nonce'       => wp_create_nonce( "{$this->name}_nonce" ),
-				'nonce_name'  => "{$this->name}_nonce",
-				'date_format' => get_option('date_format'),
-				'license'     => $this->get_license_key(),
+				'author'         => $this->author,
+				'beta'           => $this->beta,
+				'item_id'        => $this->item_id,
+				'plugin_file'    => $this->plugin_file,
+				'store_url'      => $this->store_url,
+				'version'        => $this->version,
+				'status'         => $status,
+				'license_status' => $this->get_license_status( $status ),
+				'nonce'          => wp_create_nonce( "{$this->name}_nonce" ),
+				'nonce_name'     => "{$this->name}_nonce",
+				'date_format'    => get_option('date_format'),
+				'license'        => $this->get_license_key(),
 			)
 		);
 		return $field_data;
+	}
+
+	public function init() {
+		add_action( "wp_ajax_{$this->name}_activate", array( $this, 'activate_license' ) );
+		add_action( "wp_ajax_{$this->name}_deactivate", array( $this, 'deactivate_license' ) );
 	}
 
 	/**
@@ -124,12 +140,6 @@ class FT_EDD_License_Field extends Field {
 	 * @return void
 	 */
 	public function admin_init() {
-
-		$this->activate_license();
-		$this->deactivate_license();
-
-		add_action( "wp_ajax_{$this->name}_activate", array( $this, 'activate_license' ) );
-		add_action( "wp_ajax_{$this->name}_deactivate", array( $this, 'deactivate_license' ) );
 
 		if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 			include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
@@ -220,17 +230,8 @@ class FT_EDD_License_Field extends Field {
 	 *
 	 * @return void
 	 */
-	private function activate_license() {
-
-		// Listen for our activate button to be clicked.
-		if ( ! isset( $_POST[ "{$this->name}_activate_license" ] ) ) {
-			return;
-		}
-
-		// Run a quick security check.
-		if ( ! check_admin_referer( "{$this->name}_nonce", "{$this->name}_nonce" ) ) {
-			return; // Get out if we didn't click the Activate button.
-		}
+	public function activate_license() {
+		check_ajax_referer( 'ft-edd-license', '_wpnonce' );
 
 		// Retrieve the license key.
 		$license_key = trim( $this->get_license_key() );
@@ -295,15 +296,23 @@ class FT_EDD_License_Field extends Field {
 			}
 		}
 
+		$license_status = '';
+
 		// Check if anything passed on a message constituting a failure.
 		if ( ! empty( $message ) ) {
 			$this->error_message = $message;
-			return;
 		} else {
-			$this->error_message = '';
+			$this->error_message = null;
+			update_option( "{$this->name}_status", $license_data );
+			$license_status = $this->get_license_status( $license_data );
 		}
 
-		update_option( "{$this->name}_status", $license_data );
+		wp_send_json(
+			array(
+				'error' => $this->error_message,
+				'status' => $license_status,
+			)
+		);
 	}
 
 	/**
@@ -311,17 +320,8 @@ class FT_EDD_License_Field extends Field {
 	 *
 	 * @return void
 	 */
-	private function deactivate_license() {
-
-		// Listen for our deactivate button to be clicked.
-		if ( ! isset( $_POST[ "{$this->name}_deactivate_license" ] ) ) {
-			return;
-		}
-
-		// Run a quick security check.
-		if ( ! check_admin_referer( "{$this->name}_nonce", "{$this->name}_nonce" ) ) {
-			return; // Get out if we didn't click the Activate button.
-		}
+	public function deactivate_license() {
+		check_ajax_referer( 'ft-edd-license', '_wpnonce' );
 
 		// Retrieve the license key.
 		$license_key = trim( $this->get_license_key() );
@@ -356,18 +356,27 @@ class FT_EDD_License_Field extends Field {
 		// Decode the license data.
 		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( ! is_object( $license_data ) ) {
+		// Check if anything passed on a message constituting a failure.
+		if ( ! empty( $message ) ) {
+			$this->error_message = $message;
 			return;
-		}
-
-		if ( ! isset( $license_data->license ) ) {
-			return;
+		} else {
+			$this->error_message = null;
 		}
 
 		// $license_data->license will be either "deactivated" or "failed".
-		if ( 'deactivated' === $license_data->license ) {
+		if ( is_object( $license_data ) && isset( $license_data->license ) && 'deactivated' === $license_data->license ) {
 			update_option( "{$this->name}_status", $license_data );
 		}
+
+		$license_status = $this->get_license_status( $license_data );
+
+		wp_send_json(
+			array(
+				'error' => $this->error_message,
+				'status' => $license_status,
+			)
+		);
 	}
 
 	/**
@@ -382,5 +391,38 @@ class FT_EDD_License_Field extends Field {
 				return '';
 				break;
 		}
+	}
+
+	private function get_license_status( $license_data ) {
+		$license_status = '';
+
+		if ( // Lifetime license.
+			isset( $license_data->license ) &&
+			'valid' === $license_data->license &&
+			isset( $license_data->expires ) &&
+			'lifetime' === $license_data->expires
+		) {
+			$license_status = __( 'Your license key never expires.' );
+		}
+
+		if (
+			isset( $license_data->license ) &&
+			'valid' === $license_data->license &&
+			isset( $license_data->expires )
+		){
+			if ( 'lifetime' === $license_data->expires ) {
+				$license_status = __( 'Your license key never expires.' );
+			} else {
+				$license_status = sprintf(
+					"Your license key expires on %s.",
+					date(
+						get_option('date_format'),
+						strtotime( $license_data->expires )
+					)
+				);
+			}
+		}
+
+		return $license_status;
 	}
 }
