@@ -7,6 +7,6 @@ import { registerFieldType } from "@carbon-fields/core";
  * Internal dependencies.
  */
 import "./style.scss";
-import FTEDDLicenseField from "./main";
+import EDDLicenseField from "./main";
 
-registerFieldType("ft_edd_license", FTEDDLicenseField);
+registerFieldType("edd_license", EDDLicenseField);

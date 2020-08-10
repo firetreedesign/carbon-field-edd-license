@@ -1,11 +1,11 @@
 <?php
 
-namespace Carbon_Field_FT_EDD_License;
+namespace Carbon_Field_EDD_License;
 
 use Carbon_Fields\Field\Field;
 use EDD_SL_Plugin_Updater;
 
-class FT_EDD_License_Field extends Field {
+class EDD_License_Field extends Field {
 
 	/**
 	 * File
@@ -66,10 +66,10 @@ class FT_EDD_License_Field extends Field {
 	 * @return void
 	 */
 	public static function field_type_activated() {
-		$dir    = \Carbon_Field_FT_EDD_License\DIR . '/languages/';
+		$dir    = \Carbon_Field_EDD_License\DIR . '/languages/';
 		$locale = get_locale();
 		$path   = $dir . $locale . '.mo';
-		load_textdomain( 'carbon-field-ft-edd-license', $path );
+		load_textdomain( 'carbon-field-edd-license', $path );
 	}
 
 	/**
@@ -82,17 +82,17 @@ class FT_EDD_License_Field extends Field {
 	 * @return void
 	 */
 	public static function admin_enqueue_scripts() {
-		$root_uri = \Carbon_Fields\Carbon_Fields::directory_to_url( \Carbon_Field_FT_EDD_License\DIR );
+		$root_uri = \Carbon_Fields\Carbon_Fields::directory_to_url( \Carbon_Field_EDD_License\DIR );
 
 		// Enqueue field styles.
-		wp_enqueue_style( 'carbon-field-ft-edd-license', $root_uri . '/build/bundle.css', array(), '1.0.0' );
+		wp_enqueue_style( 'carbon-field-edd-license', $root_uri . '/build/bundle.css', array(), '1.0.0' );
 
 		// Enqueue field scripts.
-		wp_enqueue_script( 'carbon-field-ft-edd-license', $root_uri . '/build/bundle.js', array( 'carbon-fields-core' ), '1.0.0', false );
+		wp_enqueue_script( 'carbon-field-edd-license', $root_uri . '/build/bundle.js', array( 'carbon-fields-core' ), '1.0.0', false );
 
 		wp_localize_script(
-			'carbon-field-ft-edd-license',
-			'ft_edd_license',
+			'carbon-field-edd-license',
+			'edd_license',
 			array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'ft-edd-license' )
@@ -231,7 +231,7 @@ class FT_EDD_License_Field extends Field {
 	 * @return void
 	 */
 	public function activate_license() {
-		check_ajax_referer( 'ft-edd-license', '_wpnonce' );
+		check_ajax_referer( 'edd-license', '_wpnonce' );
 
 		// Retrieve the license key.
 		$license_key = trim( $this->get_license_key() );
@@ -321,7 +321,7 @@ class FT_EDD_License_Field extends Field {
 	 * @return void
 	 */
 	public function deactivate_license() {
-		check_ajax_referer( 'ft-edd-license', '_wpnonce' );
+		check_ajax_referer( 'edd-license', '_wpnonce' );
 
 		// Retrieve the license key.
 		$license_key = trim( $this->get_license_key() );

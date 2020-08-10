@@ -5,7 +5,7 @@ import { Component, Fragment } from "@wordpress/element";
 import { __, sprintf } from "@wordpress/i18n";
 import { dateI18n } from "@wordpress/date";
 
-class FTEDDLicenseField extends Component {
+class EDDLicenseField extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -57,7 +57,7 @@ class FTEDDLicenseField extends Component {
 
 		let data = new FormData();
 		data.append("action", fieldName + "_activate");
-		data.append("_wpnonce", ft_edd_license.nonce);
+		data.append("_wpnonce", edd_license.nonce);
 
 		this.setState({
 			loading: true,
@@ -103,7 +103,7 @@ class FTEDDLicenseField extends Component {
 
 		let data = new FormData();
 		data.append("action", fieldName + "_deactivate");
-		data.append("_wpnonce", ft_edd_license.nonce);
+		data.append("_wpnonce", edd_license.nonce);
 
 		this.setState({
 			loading: true,
@@ -149,14 +149,14 @@ class FTEDDLicenseField extends Component {
 					name={field.nonce_name}
 					value={field.nonce}
 				/>
-				<div className="cf-ft_edd_license__container">
+				<div className="cf-edd_license__container">
 					<input
 						type="text"
 						id={id}
 						name={name}
 						value={value}
 						readOnly={this.state.active}
-						className="cf-ft_edd_license__input"
+						className="cf-edd_license__input"
 						onChange={this.handleChange}
 						{...field.attributes}
 					/>
@@ -207,4 +207,4 @@ class FTEDDLicenseField extends Component {
 	}
 }
 
-export default FTEDDLicenseField;
+export default EDDLicenseField;

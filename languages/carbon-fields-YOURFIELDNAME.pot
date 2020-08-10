@@ -3,14 +3,26 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "X-Generator: babel-plugin-makepot\n"
 
-#: src/main.js:68
-msgid "Activate License"
+#: src/main.js:110
+msgid "Deactivating..."
 msgstr ""
 
-#: src/main.js:77
+#: src/main.js:132
 msgid "Deactivate License"
 msgstr ""
 
-#: src/main.js:86
-msgid "Your license key never expires."
+#: src/main.js:165
+msgid "Save before activating"
+msgstr ""
+
+#: src/main.js:202
+msgid "Error:"
+msgstr ""
+
+#: src/main.js:64
+msgid "Activating..."
+msgstr ""
+
+#: src/main.js:96
+msgid "Activate License"
 msgstr ""
