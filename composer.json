@@ -1,6 +1,6 @@
 {
     "name": "firetreedesign/carbon-field-ft-edd-license",
-    "description": "Carbon Fields extension, that adds a FT EDD License field type.",
+    "description": "Carbon Fields extension, that adds an Easy Digital Downloads Software Licensing field type.",
     "keywords": ["wordpress", "carbon-field", "carbon-field-ft-edd-license"],
     "homepage": "https://firetreedesign.com",
     "type": "library",
