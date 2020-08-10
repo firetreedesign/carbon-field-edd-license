@@ -1,5 +1,5 @@
 {
-  "name": "carbon-field-ft-edd-license",
+  "name": "carbon-field-edd-license",
   "version": "1.0.0",
   "scripts": {
     "start": "npm run development -- --watch",
