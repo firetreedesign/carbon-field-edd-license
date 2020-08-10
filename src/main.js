@@ -19,10 +19,6 @@ class FTEDDLicenseField extends Component {
 	}
 
 	componentDidMount() {
-		console.log({
-			active: this.licenseActive(),
-			status: this.props.field.license_status,
-		});
 		this.setState({
 			active: this.licenseActive(),
 			status: this.props.field.license_status,
