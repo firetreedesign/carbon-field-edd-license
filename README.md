@@ -11,7 +11,7 @@ composer require firetreedesign/carbon-field-edd-license
 ## Example
 
 ```php
-Field::make( 'ft_edd_license', 'my_license_key', __( 'My License Key' ) )
+Field::make( 'edd_license', 'my_license_key', __( 'My License Key' ) )
     ->set_plugin_file( __FILE__ )
     ->set_item_id( 224 )
     ->set_version( '1.0.0' )
