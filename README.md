@@ -2,6 +2,12 @@
 
 A field add-on for Carbon Fields that allows you to Activate and Deactivate a license key with Software Licensing for Easy Digital Downloads.
 
+## Installation 
+
+```shell
+composer require firetreedesign/carbon-field-edd-license
+```
+
 ## Example
 
 ```php
