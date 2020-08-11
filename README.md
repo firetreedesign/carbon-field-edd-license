@@ -1,6 +1,11 @@
 # Carbon Field Easy Digital Downloads Software Licensing Field
+[![Latest Stable Version](https://poser.pugx.org/firetreedesign/carbon-field-edd-license/v)](//packagist.org/packages/firetreedesign/carbon-field-edd-license) [![Total Downloads](https://poser.pugx.org/firetreedesign/carbon-field-edd-license/downloads)](//packagist.org/packages/firetreedesign/carbon-field-edd-license) [![License](https://poser.pugx.org/firetreedesign/carbon-field-edd-license/license)](//packagist.org/packages/firetreedesign/carbon-field-edd-license)
 
 A field add-on for Carbon Fields that allows you to Activate and Deactivate a license key with Software Licensing for Easy Digital Downloads.
+
+## Requirements
+
+* [Carbon Fields 3](https://carbonfields.net/)
 
 ## Installation 
 
