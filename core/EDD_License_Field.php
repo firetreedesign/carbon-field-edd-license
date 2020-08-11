@@ -95,7 +95,7 @@ class EDD_License_Field extends Field {
 			'edd_license',
 			array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'ft-edd-license' )
+				'nonce'   => wp_create_nonce( 'edd-license' )
 			)
 		);
 	}

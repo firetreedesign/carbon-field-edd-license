@@ -64,7 +64,7 @@ class EDDLicenseField extends Component {
 			activateBtn: __("Activating..."),
 		});
 
-		fetch(ft_edd_license.ajaxurl, {
+		fetch(edd_license.ajaxurl, {
 			method: "POST",
 			credentials: "same-origin",
 			body: data,
@@ -110,7 +110,7 @@ class EDDLicenseField extends Component {
 			deactivateBtn: __("Deactivating..."),
 		});
 
-		fetch(ajaxurl, {
+		fetch(edd_license.ajaxurl, {
 			method: "POST",
 			credentials: "same-origin",
 			body: data,
