@@ -6,11 +6,8 @@
     "type": "library",
     "license": "GPL-2.0+",
     "autoload": {
-        "files": [
+		"files": [
             "field.php"
-        ],
-        "psr-4": {
-            "Carbon_Field_EDD_License\\": "core/"
-        }
+        ]
     }
 }

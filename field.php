@@ -10,6 +10,8 @@ use Carbon_Field_EDD_License\EDD_License_Field;
 
 define( 'Carbon_Field_EDD_License\\DIR', __DIR__ );
 
+require_once __DIR__ . '/core/EDD_License_Field.php';
+
 Carbon_Fields::extend(
 	EDD_License_Field::class,
 	function( $container ) {
