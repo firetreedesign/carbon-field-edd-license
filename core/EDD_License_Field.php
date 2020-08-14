@@ -132,6 +132,22 @@ class EDD_License_Field extends Field {
 	public function init() {
 		add_action( "wp_ajax_{$this->name}_activate", array( $this, 'activate_license' ) );
 		add_action( "wp_ajax_{$this->name}_deactivate", array( $this, 'deactivate_license' ) );
+
+		// if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
+		// 	include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
+		// }
+
+		// new EDD_SL_Plugin_Updater(
+		// 	$this->store_url,
+		// 	$this->plugin_file,
+		// 	array(
+		// 		'license' => $this->get_license_key(),
+		// 		'version' => $this->version, // Current version number.
+		// 		'item_id' => $this->item_id, // ID of the product.
+		// 		'author'  => $this->author, // Author of the product.
+		// 		'beta'    => $this->beta, // Receive beta updates.
+		// 	)
+		// );
 	}
 
 	/**
@@ -141,21 +157,21 @@ class EDD_License_Field extends Field {
 	 */
 	public function admin_init() {
 
-		if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-			include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
-		}
+		// if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
+		// 	include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
+		// }
 
-		new EDD_SL_Plugin_Updater(
-			$this->store_url,
-			$this->plugin_file,
-			array(
-				'license' => $this->get_license_key(),
-				'version' => $this->version, // Current version number.
-				'item_id' => $this->item_id, // ID of the product.
-				'author'  => $this->author, // Author of the product.
-				'beta'    => $this->beta, // Receive beta updates.
-			)
-		);
+		// new EDD_SL_Plugin_Updater(
+		// 	$this->store_url,
+		// 	$this->plugin_file,
+		// 	array(
+		// 		'license' => $this->get_license_key(),
+		// 		'version' => $this->version, // Current version number.
+		// 		'item_id' => $this->item_id, // ID of the product.
+		// 		'author'  => $this->author, // Author of the product.
+		// 		'beta'    => $this->beta, // Receive beta updates.
+		// 	)
+		// );
 
 	}
 
@@ -302,9 +318,17 @@ class EDD_License_Field extends Field {
 		if ( ! empty( $message ) ) {
 			$this->error_message = $message;
 		} else {
+			// Reset the error message.
 			$this->error_message = null;
+
+			// Save the license status.
 			update_option( "{$this->name}_status", $license_data );
+
+			// Get the license status text.
 			$license_status = $this->get_license_status( $license_data );
+
+			// Save the item info.
+			$this->save_item_info();
 		}
 
 		wp_send_json(
@@ -367,6 +391,7 @@ class EDD_License_Field extends Field {
 		// $license_data->license will be either "deactivated" or "failed".
 		if ( is_object( $license_data ) && isset( $license_data->license ) && 'deactivated' === $license_data->license ) {
 			update_option( "{$this->name}_status", $license_data );
+			$this->delete_item_info();
 		}
 
 		$license_status = $this->get_license_status( $license_data );
@@ -424,5 +449,47 @@ class EDD_License_Field extends Field {
 		}
 
 		return $license_status;
+	}
+
+	/**
+	 * Save the item info to the options.
+	 *
+	 * @return void
+	 */
+	private function save_item_info() {
+		$licenses = get_option( 'cf_edd_license_data', array() );
+
+		if ( ! is_array( $licenses ) ) {
+			$licenses = wp_json_decode( $licenses );
+		}
+
+		$licenses[ $this->name ] = array(
+			'store_url'   => $this->store_url,
+			'plugin_file' => $this->plugin_file,
+			'license'     => $this->get_license_key(),
+			'version'     => $this->version,
+			'item_id'     => $this->item_id,
+			'author'      => $this->author,
+			'beta'        => $this->beta,
+		);
+
+		update_option( 'cf_edd_license_data', wp_json_encode( $licenses ) );
+	}
+
+	/**
+	 * Delete the item info from the options.
+	 *
+	 * @return void
+	 */
+	private function delete_item_info() {
+		$licenses = get_option( 'cf_edd_license_data', array() );
+
+		if ( ! is_array( $licenses ) ) {
+			$licenses = wp_json_decode( $licenses );
+		}
+
+		unset( $licenses[ $this->name ] );
+
+		update_option( 'cf_edd_license_data', wp_json_encode( $licenses ) );
 	}
 }
