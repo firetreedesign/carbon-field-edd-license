@@ -1,10 +1,18 @@
 <?php
+/**
+ * Carbon Fields Easy Digital Downloads License Field
+ *
+ * @package edd-license-field
+ */
 
 namespace Carbon_Field_EDD_License;
 
 use Carbon_Fields\Field\Field;
-use EDD_SL_Plugin_Updater;
+use CF_EDD_SL_Plugin_Updater;
 
+/**
+ * Carbon Fields Easy Digital Downloads License Field
+ */
 class EDD_License_Field extends Field {
 
 	/**
@@ -16,7 +24,7 @@ class EDD_License_Field extends Field {
 
 	/**
 	 * Item ID
-	 * 
+	 *
 	 * @var int
 	 */
 	protected $item_id;
@@ -95,7 +103,7 @@ class EDD_License_Field extends Field {
 			'edd_license',
 			array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'edd-license' )
+				'nonce'   => wp_create_nonce( 'edd-license' ),
 			)
 		);
 	}
@@ -107,7 +115,7 @@ class EDD_License_Field extends Field {
 	 * @return array
 	 */
 	public function to_json( $load ) {
-		$status = get_option( "{$this->name}_status" );
+		$status     = get_option( "{$this->name}_status" );
 		$field_data = parent::to_json( $load );
 		$field_data = array_merge(
 			$field_data,
@@ -122,57 +130,40 @@ class EDD_License_Field extends Field {
 				'license_status' => $this->get_license_status( $status ),
 				'nonce'          => wp_create_nonce( "{$this->name}_nonce" ),
 				'nonce_name'     => "{$this->name}_nonce",
-				'date_format'    => get_option('date_format'),
+				'date_format'    => get_option( 'date_format' ),
 				'license'        => $this->get_license_key(),
 			)
 		);
 		return $field_data;
 	}
 
+	/**
+	 * Init
+	 *
+	 * @return void
+	 */
 	public function init() {
 		add_action( "wp_ajax_{$this->name}_activate", array( $this, 'activate_license' ) );
 		add_action( "wp_ajax_{$this->name}_deactivate", array( $this, 'deactivate_license' ) );
 
-		// if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-		// 	include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
-		// }
+		/*
+		Comment
+		if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
+			include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
+		}
 
-		// new EDD_SL_Plugin_Updater(
-		// 	$this->store_url,
-		// 	$this->plugin_file,
-		// 	array(
-		// 		'license' => $this->get_license_key(),
-		// 		'version' => $this->version, // Current version number.
-		// 		'item_id' => $this->item_id, // ID of the product.
-		// 		'author'  => $this->author, // Author of the product.
-		// 		'beta'    => $this->beta, // Receive beta updates.
-		// 	)
-		// );
-	}
-
-	/**
-	 * Admin init
-	 *
-	 * @return void
-	 */
-	public function admin_init() {
-
-		// if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-		// 	include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
-		// }
-
-		// new EDD_SL_Plugin_Updater(
-		// 	$this->store_url,
-		// 	$this->plugin_file,
-		// 	array(
-		// 		'license' => $this->get_license_key(),
-		// 		'version' => $this->version, // Current version number.
-		// 		'item_id' => $this->item_id, // ID of the product.
-		// 		'author'  => $this->author, // Author of the product.
-		// 		'beta'    => $this->beta, // Receive beta updates.
-		// 	)
-		// );
-
+		new EDD_SL_Plugin_Updater(
+			$this->store_url,
+			$this->plugin_file,
+			array(
+				'license' => $this->get_license_key(),
+				'version' => $this->version, // Current version number.
+				'item_id' => $this->item_id, // ID of the product.
+				'author'  => $this->author, // Author of the product.
+				'beta'    => $this->beta, // Receive beta updates.
+			)
+		);
+		*/
 	}
 
 	/**
@@ -284,6 +275,7 @@ class EDD_License_Field extends Field {
 				switch ( $license_data->error ) {
 					case 'expired':
 						$message = sprintf(
+							// translators: the placeholder is for a date.
 							__( 'Your license key expired on %s.' ),
 							date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires, current_time( 'timestamp' ) ) )
 						);
@@ -333,7 +325,7 @@ class EDD_License_Field extends Field {
 
 		wp_send_json(
 			array(
-				'error' => $this->error_message,
+				'error'  => $this->error_message,
 				'status' => $license_status,
 			)
 		);
@@ -398,7 +390,7 @@ class EDD_License_Field extends Field {
 
 		wp_send_json(
 			array(
-				'error' => $this->error_message,
+				'error'  => $this->error_message,
 				'status' => $license_status,
 			)
 		);
@@ -411,13 +403,17 @@ class EDD_License_Field extends Field {
 		switch ( $this->context ) {
 			case 'theme_options':
 				return \carbon_get_theme_option( $this->base_name );
-				break;
 			default:
 				return '';
-				break;
 		}
 	}
 
+	/**
+	 * Get the license status in text format
+	 *
+	 * @param object $license_data License data.
+	 * @return string
+	 */
 	private function get_license_status( $license_data ) {
 		$license_status = '';
 
@@ -434,14 +430,14 @@ class EDD_License_Field extends Field {
 			isset( $license_data->license ) &&
 			'valid' === $license_data->license &&
 			isset( $license_data->expires )
-		){
+		) {
 			if ( 'lifetime' === $license_data->expires ) {
 				$license_status = __( 'Your license key never expires.' );
 			} else {
 				$license_status = sprintf(
-					"Your license key expires on %s.",
+					'Your license key expires on %s.',
 					date(
-						get_option('date_format'),
+						get_option( 'date_format' ),
 						strtotime( $license_data->expires )
 					)
 				);
@@ -457,13 +453,15 @@ class EDD_License_Field extends Field {
 	 * @return void
 	 */
 	private function save_item_info() {
-		$licenses = get_option( 'cf_edd_license_data', array() );
+		$licenses = \get_option( 'cf_edd_license_data' );
 
-		if ( ! is_array( $licenses ) ) {
-			$licenses = wp_json_decode( $licenses );
+		if ( ! $licenses ) {
+			$licenses = new stdClass();
+		} else {
+			$licenses = \json_decode( $licenses );
 		}
 
-		$licenses[ $this->name ] = array(
+		$licenses->{$this->name } = array(
 			'store_url'   => $this->store_url,
 			'plugin_file' => $this->plugin_file,
 			'license'     => $this->get_license_key(),
@@ -473,7 +471,7 @@ class EDD_License_Field extends Field {
 			'beta'        => $this->beta,
 		);
 
-		update_option( 'cf_edd_license_data', wp_json_encode( $licenses ) );
+		\update_option( 'cf_edd_license_data', \wp_json_encode( $licenses ) );
 	}
 
 	/**
@@ -482,14 +480,20 @@ class EDD_License_Field extends Field {
 	 * @return void
 	 */
 	private function delete_item_info() {
-		$licenses = get_option( 'cf_edd_license_data', array() );
+		$licenses = \get_option( 'cf_edd_license_data' );
 
-		if ( ! is_array( $licenses ) ) {
-			$licenses = wp_json_decode( $licenses );
+		if ( ! $licenses ) {
+			$licenses = new stdClass();
+		} else {
+			$licenses = \json_decode( $licenses );
 		}
 
-		unset( $licenses[ $this->name ] );
+		if ( ! isset( $licenses->{ $this->name } ) ) {
+			return;
+		}
 
-		update_option( 'cf_edd_license_data', wp_json_encode( $licenses ) );
+		unset( $licenses->{ $this->name } );
+
+		\update_option( 'cf_edd_license_data', \wp_json_encode( $licenses ) );
 	}
 }
