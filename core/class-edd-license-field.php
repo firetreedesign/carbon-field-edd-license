@@ -9,6 +9,7 @@ namespace Carbon_Field_EDD_License;
 
 use Carbon_Fields\Field\Field;
 use CF_EDD_SL_Plugin_Updater;
+use stdClass;
 
 /**
  * Carbon Fields Easy Digital Downloads License Field
