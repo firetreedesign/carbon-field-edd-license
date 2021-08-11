@@ -15,19 +15,24 @@ define( 'Carbon_Field_EDD_License\\DIR', __DIR__ );
 
 /**
  * Register the field with Carbon Fields
+ *
+ * @return void
  */
-require_once __DIR__ . '/core/class-edd-license-field.php';
+function register_field() {
+	require_once __DIR__ . '/core/class-edd-license-field.php';
 
-Carbon_Fields::extend(
-	EDD_License_Field::class,
-	function( $container ) {
-		return new EDD_License_Field(
-			$container['arguments']['type'],
-			$container['arguments']['name'],
-			$container['arguments']['label']
-		);
-	}
-);
+	Carbon_Fields::extend(
+		EDD_License_Field::class,
+		function( $container ) {
+			return new EDD_License_Field(
+				$container['arguments']['type'],
+				$container['arguments']['name'],
+				$container['arguments']['label']
+			);
+		}
+	);
+}
+add_action( 'carbon_fields_loaded', __NAMESPACE__ . '\\register_field' );
 
 /**
  * Register the updater
