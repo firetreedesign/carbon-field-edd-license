@@ -32,7 +32,7 @@ function register_field() {
 		}
 	);
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\\register_field' );
+add_action( 'after_theme_setup', __NAMESPACE__ . '\\register_field' );
 
 /**
  * Register the updater

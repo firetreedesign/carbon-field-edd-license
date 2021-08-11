@@ -146,25 +146,6 @@ class EDD_License_Field extends Field {
 	public function init() {
 		add_action( "wp_ajax_{$this->name}_activate", array( $this, 'activate_license' ) );
 		add_action( "wp_ajax_{$this->name}_deactivate", array( $this, 'deactivate_license' ) );
-
-		/*
-		Comment
-		if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-			include realpath( __DIR__ ) . '../lib/EDD_SL_Plugin_Updater.php';
-		}
-
-		new EDD_SL_Plugin_Updater(
-			$this->store_url,
-			$this->plugin_file,
-			array(
-				'license' => $this->get_license_key(),
-				'version' => $this->version, // Current version number.
-				'item_id' => $this->item_id, // ID of the product.
-				'author'  => $this->author, // Author of the product.
-				'beta'    => $this->beta, // Receive beta updates.
-			)
-		);
-		*/
 	}
 
 	/**
