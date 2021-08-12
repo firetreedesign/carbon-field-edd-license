@@ -1,26 +1,26 @@
 /**
  * External dependencies.
  */
-const path = require( 'path' );
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const OptimizeCssAssetsPlugin = require( 'optimize-css-assets-webpack-plugin' );
-const TerserPlugin = require( 'terser-webpack-plugin' );
-const { ProvidePlugin } = require( 'webpack' );
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const { ProvidePlugin } = require("webpack");
 
 /**
  * Indicates if we're running the build process in production mode.
  *
  * @type {Boolean}
  */
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
 	entry: {
-		bundle: './src/index.js'
+		bundle: "./src/index.js",
 	},
 	output: {
-		path: path.resolve( __dirname, 'build' ),
-		filename: isProduction ? '[name].min.js' : '[name].js'
+		path: path.resolve(__dirname, "build"),
+		filename: isProduction ? "[name].min.js" : "[name].js",
 	},
 	module: {
 		rules: [
@@ -28,76 +28,79 @@ module.exports = {
 				test: /\.js$/,
 				exclude: /node_modules/,
 				use: {
-					loader: 'babel-loader',
+					loader: "babel-loader",
 					options: {
-						cacheDirectory: true
-					}
-				}
+						cacheDirectory: true,
+					},
+				},
 			},
 			{
 				test: /\.scss$/,
 				use: [
 					MiniCssExtractPlugin.loader,
 					{
-						loader: 'css-loader',
+						loader: "css-loader",
 						options: {
-							importLoaders: 2
-						}
+							importLoaders: 2,
+						},
 					},
 					{
-						loader: 'postcss-loader'
+						loader: "postcss-loader",
 					},
 					{
-						loader: 'sass-loader'
-					}
-				]
-			}
-		]
+						loader: "sass-loader",
+					},
+				],
+			},
+		],
 	},
 	externals: [
-		'@wordpress/compose',
-		'@wordpress/data',
-		'@wordpress/element',
-		'@wordpress/hooks',
-		'@wordpress/i18n',
-		'classnames',
-		'lodash'
-	].reduce( ( memo, name ) => {
-		memo[ name ] = `cf.vendor['${ name }']`;
+		"@wordpress/compose",
+		"@wordpress/data",
+		"@wordpress/element",
+		"@wordpress/hooks",
+		"@wordpress/i18n",
+		"classnames",
+		"lodash",
+	].reduce(
+		(memo, name) => {
+			memo[name] = `cf.vendor['${name}']`;
 
-		return memo;
-	}, {
-		'@carbon-fields/core': 'cf.core'
-	} ),
+			return memo;
+		},
+		{
+			"@carbon-fields/core": "cf.core",
+		}
+	),
 	plugins: [
-		new MiniCssExtractPlugin( {
-			filename: isProduction ? '[name].min.css' : '[name].css'
-		} ),
+		new MiniCssExtractPlugin({
+			filename: isProduction ? "[name].min.css" : "[name].css",
+		}),
 
-		new ProvidePlugin( {
-			'wp.element': '@wordpress/element'
-		} ),
+		new ProvidePlugin({
+			"wp.element": "@wordpress/element",
+		}),
 
-		...(
-			isProduction
+		...(isProduction
 			? [
-				new OptimizeCssAssetsPlugin( {
-					cssProcessorPluginOptions: {
-						preset: [ 'default', { discardComments: { removeAll: true } } ]
-					}
-				} ),
-				new TerserPlugin( {
-					cache: true,
-					parallel: true
-				} )
-			]
-			: []
-		)
+					new OptimizeCssAssetsPlugin({
+						cssProcessorPluginOptions: {
+							preset: [
+								"default",
+								{ discardComments: { removeAll: true } },
+							],
+						},
+					}),
+					new TerserPlugin({
+						parallel: true,
+					}),
+			  ]
+			: []),
 	],
 	stats: {
 		modules: false,
 		hash: false,
 		builtAt: false,
-		children: false
-	}
+		children: false,
+	},
 };

@@ -32,7 +32,7 @@ function register_field() {
 		}
 	);
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\\register_field' );
+add_action( 'carbon_fields_loaded', __NAMESPACE__ . '\\register_field' );
 
 /**
  * Register the updater
@@ -65,4 +65,4 @@ function register_updater() {
 		);
 	}
 }
-add_action( 'admin_init', __NAMESPACE__ . '\\register_updater' );
+add_action( 'init', __NAMESPACE__ . '\\register_updater' );

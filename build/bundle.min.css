@@ -1,1 +1,1 @@
-.cf-edd_license__container{display:grid;grid-template-columns:3fr 1fr;grid-gap:10px;gap:10px}.cf-edd_license__input{display:block;width:100%!important;margin:0}
+.cf-edd_license__container{grid-gap:10px;display:grid;gap:10px;grid-template-columns:3fr 1fr}.cf-edd_license__input{display:block;margin:0;width:100%!important}
