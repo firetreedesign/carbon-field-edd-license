@@ -65,4 +65,4 @@ function register_updater() {
 		);
 	}
 }
-add_action( 'admin_init', __NAMESPACE__ . '\\register_updater' );
+add_action( 'init', __NAMESPACE__ . '\\register_updater' );
